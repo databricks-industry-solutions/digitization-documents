@@ -1,0 +1,1 @@
+# tika-ocr-inputformat
