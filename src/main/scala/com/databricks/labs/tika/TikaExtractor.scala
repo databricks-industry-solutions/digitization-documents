@@ -1,6 +1,5 @@
 package com.databricks.labs.tika
 
-import com.sun.jna.NativeLibrary
 import org.apache.tika.exception.TikaException
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.ocr.TesseractOCRConfig
@@ -15,19 +14,6 @@ import scala.xml.SAXException
 class TikaExtractor extends Serializable {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
-
-  def isTesseractAvailable: Boolean = {
-    NativeLibrary.getInstance("tesseract")
-    try {
-      NativeLibrary.getInstance("tesseract")
-      logger.info("Found tesseract library")
-      true
-    } catch {
-      case _: UnsatisfiedLinkError =>
-        logger.warn("Could not find tesseract library")
-        false
-    }
-  }
 
   @throws[IOException]
   @throws[SAXException]
@@ -44,9 +30,6 @@ class TikaExtractor extends Serializable {
 
     // To work, we need Tesseract library install natively
     // Input format will not fail, but won't be able to extract text from pictures
-    // TODO: Try to find a way to log warning
-    isTesseractAvailable
-
     parseContext.set(classOf[TesseractOCRConfig], config)
     parseContext.set(classOf[PDFParserConfig], pdfConfig)
     parseContext.set(classOf[Parser], parser)

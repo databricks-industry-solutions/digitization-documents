@@ -31,8 +31,8 @@ class TikaExtractorTest extends AnyFlatSpec with Matchers {
     allFiles.map(file => {
       val document = new TikaExtractor().extract(FileUtils.readFileToByteArray(file))
       val text = document.content
-//      text should include regex "[hH]ello"
-//      text should include regex "[tT]ika"
+      text should include regex "[hH]ello"
+      text should include regex "[tT]ika"
     })
   }
 
