@@ -24,7 +24,7 @@ jobs:
         # Our library works without Tesseract installed but test will fail on purpose
         # We ensure tesseract C++ library is available on test environment
       - name: Install Tesseract
-        run: sudo apt-get install -y tesseract
+        run: sudo apt-get install -y tesseract-ocr
 
         # The next step is to install a JDK and maven environment
         # A settings.xml file with credentials will be created and stored in that folder
