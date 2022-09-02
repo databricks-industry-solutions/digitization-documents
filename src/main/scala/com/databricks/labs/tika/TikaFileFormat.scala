@@ -6,13 +6,18 @@ import org.apache.hadoop.fs.{FileStatus, Path}
 import org.apache.hadoop.mapreduce.Job
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.codegen.{UnsafeArrayWriter, UnsafeRowWriter}
 import org.apache.spark.sql.catalyst.util.DateTimeUtils
 import org.apache.spark.sql.errors.QueryExecutionErrors
 import org.apache.spark.sql.execution.datasources.{FileFormat, OutputWriterFactory, PartitionedFile}
 import org.apache.spark.sql.sources.{DataSourceRegister, Filter}
 import org.apache.spark.sql.types._
+import org.apache.spark.unsafe.Platform
+import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.util.SerializableConfiguration
+import org.apache.tika.io.TikaInputStream
 
+import java.io.ByteArrayInputStream
 import java.net.URI
 
 class TikaFileFormat extends FileFormat with DataSourceRegister {
@@ -59,21 +64,84 @@ class TikaFileFormat extends FileFormat with DataSourceRegister {
     val tikaExtractor = new TikaExtractor()
 
     file: PartitionedFile => {
+
+      // Retrieve file information
       val path = new Path(new URI(file.filePath))
       val fs = path.getFileSystem(hadoopConf_B.value.value)
       val status = fs.getFileStatus(path)
       if (status.getLen > maxLength) throw QueryExecutionErrors.fileLengthExceedsMaxLengthError(status, maxLength)
-      val stream = fs.open(status.getPath)
+      val fileName = status.getPath.toString
+      val fileLength = status.getLen
+      val fileTime = DateTimeUtils.millisToMicros(status.getModificationTime)
+
+      // Open file as a stream
+      val inputStream = fs.open(status.getPath)
+
       try {
-        val fileName = status.getPath.toString
-        val fileLength = status.getLen
-        val fileTime = DateTimeUtils.millisToMicros(status.getModificationTime)
-        val binaryContent = IOUtils.toByteArray(stream)
-        val tikaDocument = tikaExtractor.extract(binaryContent)
-        val record = DocumentRow(fileName, fileTime, fileLength, binaryContent, tikaDocument)
-        Iterator.single(record.toRow)
+
+        // Fully read file content as ByteArray
+        val byteArray = IOUtils.toByteArray(inputStream)
+
+        // Extract text from binary using Tika
+        val tikaDocument = tikaExtractor.extract(TikaInputStream.get(new ByteArrayInputStream(byteArray)), fileName)
+
+        // Write content to a row following schema specs
+        val writer = new UnsafeRowWriter(requiredSchema.length)
+        writer.resetRowWriter()
+
+        // Append each field to a row in the order dictated by our schema
+        requiredSchema.zipWithIndex.foreach({ case (f, i) =>
+          f.name match {
+            case COL_PATH => writer.write(i, UTF8String.fromString(fileName))
+            case COL_TIME => writer.write(i, fileTime)
+            case COL_LENGTH => writer.write(i, fileLength)
+            case COL_TEXT => writer.write(i, UTF8String.fromString(tikaDocument.content))
+            case COL_CONTENT => writer.write(i, byteArray)
+            case COL_TYPE => writer.write(i, UTF8String.fromString(tikaDocument.contentType))
+            case COL_METADATA =>
+
+              // MapType is not considered mutable, we need to convert to UnsafeRow record
+              // This will be a structure for list of keys, list of values
+              val previousCursor = writer.cursor()
+              val dataType = MapType(StringType, StringType)
+              val keyArrayWriter = new UnsafeArrayWriter(writer, dataType.defaultSize)
+              val valArrayWriter = new UnsafeArrayWriter(writer, dataType.defaultSize)
+
+              // preserve 8 bytes to write the key array numBytes later.
+              valArrayWriter.grow(8)
+              valArrayWriter.increaseCursor(8)
+
+              // Write the keys and write the numBytes of key array into the first 8 bytes.
+              keyArrayWriter.initialize(tikaDocument.metadata.size)
+              tikaDocument.metadata.keys.zipWithIndex.foreach({ case (k, i) =>
+                keyArrayWriter.write(i, UTF8String.fromString(k))
+              })
+
+              // Shift cursor for array of values
+              Platform.putLong(
+                valArrayWriter.getBuffer,
+                previousCursor,
+                valArrayWriter.cursor - previousCursor - 8
+              )
+
+              // Write the values.
+              valArrayWriter.initialize(tikaDocument.metadata.size)
+              tikaDocument.metadata.values.zipWithIndex.foreach({ case (v, i) =>
+                valArrayWriter.write(i, UTF8String.fromString(v))
+              })
+
+              // Write our MapType - phew...
+              writer.setOffsetAndSizeFromPreviousCursor(i, previousCursor)
+
+            case other => throw QueryExecutionErrors.unsupportedFieldNameError(other)
+          }
+        })
+
+        // Return a row of TIKA extracted content
+        Iterator.single(writer.getRow)
+
       } finally {
-        IOUtils.close(stream)
+        IOUtils.close(inputStream)
       }
     }
   }
