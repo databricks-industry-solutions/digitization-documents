@@ -50,4 +50,11 @@ class TikaExtractorTest extends AnyFlatSpec with Matchers {
     df.show()
   }
 
+  "A SAR" should "be read" in {
+    val path = Paths.get("src", "test", "resources", "text", "hello_tika.docx").toFile
+    val document = new TikaExtractor().extract(FileUtils.readFileToByteArray(path))
+    val text = document.content
+    println(text)
+  }
+
 }

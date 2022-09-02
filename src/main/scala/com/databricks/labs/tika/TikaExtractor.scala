@@ -1,6 +1,7 @@
 package com.databricks.labs.tika
 
 import org.apache.tika.exception.TikaException
+import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.ocr.TesseractOCRConfig
 import org.apache.tika.parser.pdf.PDFParserConfig
@@ -34,7 +35,9 @@ class TikaExtractor extends Serializable {
     parseContext.set(classOf[PDFParserConfig], pdfConfig)
     parseContext.set(classOf[Parser], parser)
 
-    val is = new ByteArrayInputStream(stream)
+    // Need to use Tika InputStream to read enough bytes and auto detect parser
+    // Otherwise we may have inconsistent results (e.g. docx considered as zip file)
+    val is = TikaInputStream.get(new ByteArrayInputStream(stream))
     parser.parse(is, handler, metadata, parseContext)
     val content = handler.toString
     is.close()
