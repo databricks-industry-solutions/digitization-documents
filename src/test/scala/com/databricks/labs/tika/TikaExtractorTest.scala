@@ -50,11 +50,4 @@ class TikaExtractorTest extends AnyFlatSpec with Matchers {
     df.select("contentText").show()
   }
 
-  "A Suspicious activity report" should "be read" in {
-    val path = Paths.get("src", "test", "resources", "SAR.png")
-    val document = new TikaExtractor().extract(TikaInputStream.get(new FileInputStream(path.toFile)), path.toFile.toString)
-    val text = document.content
-    assert(text.contains("John Doe"))
-  }
-
 }
