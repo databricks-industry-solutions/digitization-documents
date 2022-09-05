@@ -44,7 +44,7 @@ class TikaExtractorTest extends AnyFlatSpec with Matchers {
     df.count() shouldBe 15
   }
 
-  it should "work with registered short name" in {
+  "No exception" should "be raised when using short name" in {
     val path = Paths.get("src", "test", "resources", "text").toAbsolutePath.toString
     val df = spark.read.format("tika").option("foo", "bar").load(path)
     df.select("contentText").show()
@@ -55,7 +55,6 @@ class TikaExtractorTest extends AnyFlatSpec with Matchers {
     val document = new TikaExtractor().extract(TikaInputStream.get(new FileInputStream(path.toFile)), path.toFile.toString)
     val text = document.content
     assert(text.contains("John Doe"))
-    println(text)
   }
 
 }

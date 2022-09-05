@@ -31,7 +31,7 @@ class SparkTest(unittest.TestCase):
         files = os.path.join(path, 'src', 'test', 'resources', 'text')
         df = self.spark.read.format('tika').load(files)
         df.show()
-        self.assertEqual(df.filter(F.lower('contentText').contains('tika')).count(), 13)
+        self.assertEqual(df.filter(F.lower('contentText').contains('tika')).count(), 11)
 
     def test_images(self):
         path = Path(os.getcwd()).parent.absolute()
