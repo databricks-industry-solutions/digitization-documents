@@ -15,7 +15,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC <img src='https://raw.githubusercontent.com/databricks-industry-solutions/digitization-documents/master/images/reference_architecture.png' width=800>
+# MAGIC <img src='https://raw.githubusercontent.com/databricks-industry-solutions/digitization-documents/main/images/reference_architecture.png' width=800>
 
 # COMMAND ----------
 

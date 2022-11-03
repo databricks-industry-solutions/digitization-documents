@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Tika text extraction
-# MAGIC Using [TikaInputFormat](https://github.com/databrickslabs/tika-ocr) library and tesseract binaries installed on each executor as an init script (optional), we can read any unstructured text as-is, extracting content type, text and metadata. Although this demo only focuses on PDF documents, Tika [supports](https://tika.apache.org/1.10/formats.html) literally any single MIME type known to men, from email, pictures, xls, , html, powerpoints, scanned images, etc. 
+# MAGIC Using [TikaInputFormat](https://github.com/databrickslabs/tika-ocr) library and tesseract binaries installed on each executor as an init script (optional), we can read any unstructured text as-is, extracting content type, text and metadata. Although this demo only focuses on PDF documents, Tika [supports](https://tika.apache.org/1.10/formats.html) literally any single MIME type known to men, from email, pictures, xls, html, powerpoints, scanned images, etc. 
 
 # COMMAND ----------
 
@@ -59,7 +59,7 @@ display(ngram_df[['path', 'contentText', 'mask']])
 
 # MAGIC %md
 # MAGIC ## Separating document types
-# MAGIC Although we are able to "eyeball" some changes between documents, unsupervised learning models such as KMeans should be able to capture more subtle variations of the different text structures, programmatically. The goal will not be to build the most accurate model, but rather delegate that business logic to find similar content and tag these appropriately as table vs. text. 
+# MAGIC Although we are able to "eyeball" some changes between documents, unsupervised learning models such as KMeans should be able to capture more subtle variations of the different text structures, programmatically. The goal will not be to build the most accurate model, but rather delegate that business logic to find similar content and tag these appropriately as table vs. text. We start by generating ngrams of different sizes to capture descriptive structures in our corpus.
 
 # COMMAND ----------
 
@@ -72,7 +72,7 @@ for mask in vectorizer.get_feature_names()[0:10]:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC With numbers of clusters set to 3, we were aiming at detecting structured data, unstructured data and semi structured information, all driven by different mask characteristics. For example, a mask such as `AW9AW9A9W` would be characteristic of a table of numbers. Please note that different content will yield different outputs requiring an analyst / scientist / engineer to tweak this notebook accordingly.
+# MAGIC With numbers of clusters set to 3, we aim at detecting structured, unstructured and semi structured data, all driven by different mask characteristics. For example, a mask such as `AW9AW9A9W` would be indicative of a table of numbers. Please note that different content will yield different outputs requiring an analyst / scientist / engineer to tweak this notebook accordingly.
 
 # COMMAND ----------
 
@@ -86,7 +86,7 @@ ngram_df['distance'] = [np.min(y) for y in ys]
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Let's find the most descriptive documents for each identified cluster (set to 3). As expected, we find pages of highly unstructured text as well a tabular information. In this example, we will consider `cluster_1` to be made of highly structured tables that we may want to delegate to a post processing layer such as AWS textract. `cluster_2`, however, contains plain text content that was already extracted through Tika with little or no benefits (and high costs) for a post processing layer.  
+# MAGIC Let's find the most descriptive documents for each identified cluster. As expected, we could find pages of highly unstructured text as well a tabular information. In this example, we will consider `cluster_1` to be made of highly structured information that we may want to delegate to a post processing layer such as AWS textract. `cluster_2`, however, contains plain text content that was already extracted through Tika with little or no benefits (and high costs) for a post processing layer.  
 
 # COMMAND ----------
 
@@ -107,7 +107,7 @@ for cid in range(k):
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Once more, this apparent simple approach to mask based profiling seems to yield powerful insights, successfully separating 3 different structures of documents. Structured, Semi Structured and Unstructured data. The next step will be to move towards a supervised learning approach and automatically recognize documents as Text vs Table as new information unfold (as new files are dropped to e.g. S3)
+# MAGIC Once again, this apparent simple approach to mask based profiling seems to yield powerful insights, successfully separating 3 different structures of documents. The next step will be to move towards a supervised learning approach and automatically recognize documents as Text vs Table as new information unfold (as new files are dropped to e.g. S3)
 
 # COMMAND ----------
 
