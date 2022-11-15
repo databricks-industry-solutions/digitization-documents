@@ -9,6 +9,7 @@ warnings.filterwarnings("ignore")
 # COMMAND ----------
 
 # MAGIC %sh
+# MAGIC mkdir -p /dbfs/FileStore/solution_accelerators/digitization/ && touch /dbfs/FileStore/solution_accelerators/digitization/init.sh
 # MAGIC cat <<EOF > /dbfs/FileStore/solution_accelerators/digitization/init.sh
 # MAGIC #!/usr/bin/env bash
 # MAGIC sudo apt-get install -y tesseract-ocr
