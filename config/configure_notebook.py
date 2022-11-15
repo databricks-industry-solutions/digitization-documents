@@ -18,8 +18,19 @@ warnings.filterwarnings("ignore")
 # COMMAND ----------
 
 sector = 'i22' # Brewing companies
-s3_bucket = 'db-industry-gtm'
-landing_zone = 'fsi/datasets/digitization/csr/files'
-landing_zone_fs = 's3://{}/{}/**/pages'.format(s3_bucket, landing_zone)
+landing_zone = '/tmp/fsi/datasets/digitization/csr/files'
 model_name = 'table_classification'
 k = 3
+landing_zone_fs = '{}/**/pages'.format(landing_zone)
+s3_bucket = 'db-industry-gtm'
+s3_landing_zone = 's3://{}{}'.format(s3_bucket, landing_zone)
+
+# COMMAND ----------
+
+import mlflow
+username = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
+mlflow.set_experiment('/Users/{}/document_digitization'.format(username))
+
+# COMMAND ----------
+
+

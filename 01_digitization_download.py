@@ -96,11 +96,13 @@ import uuid
 import os
 import boto3
 
-s3_client = boto3.client('s3')
+# reinitiate the landing zone for the download
+dbutils.fs.rm(landing_zone, True)
+dbutils.fs.mkdirs(landing_zone)
+
 csr_data = []
 organizations = get_organizations(sector)
 n = len(organizations)
-
 print('*'*50)
 print('Downloading reports for {} organization(s)'.format(n))
 print('*'*50)
@@ -113,6 +115,8 @@ for i, organization in enumerate(organizations):
         try:
             # generate a unique identifier and a unique path where files will be stored
             doc_id = uuid.uuid4().hex
+            dir = '/dbfs{}/{}/pages'.format(landing_zone, doc_id)
+            os.makedirs(dir, exist_ok=True)
 
             # download PDF content
             response = requests.get(url)
@@ -123,7 +127,8 @@ for i, organization in enumerate(organizations):
 
             # write each page individually to s3
             for j, page_content in enumerate(pages):
-                s3_client.put_object(Body=page_content, Bucket=s3_bucket, Key='{}/{}/pages/{}.pdf'.format(landing_zone, doc_id, j + 1))
+                with open('{}/{}.pdf'.format(dir, j + 1), 'wb') as f:
+                    f.write(page_content)
 
             print('[{}/{}] Downloaded report for [{}]'.format(i + 1, n, organization))
         except:
@@ -138,5 +143,13 @@ for i, organization in enumerate(organizations):
 
 # COMMAND ----------
 
+landing_zone_fs
+
+# COMMAND ----------
+
 binary_df = spark.read.format('binaryFile').load(landing_zone_fs)
 display(binary_df)
+
+# COMMAND ----------
+
+

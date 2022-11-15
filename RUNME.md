@@ -1,1 +1,0 @@
-# Digitization of Financial Documents

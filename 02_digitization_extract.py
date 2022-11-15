@@ -304,7 +304,7 @@ display(table_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Since we stored each page individually with original document uniquely identified, we can leverage that information to optimize calls to our post processing logic - AWS textract here. 
+# MAGIC Since we stored each page individually with original document uniquely identified, we can leverage that information to optimize calls to our post processing logic - AWS Textract here. 
 
 # COMMAND ----------
 
@@ -330,6 +330,7 @@ display(grouped_payloads_df)
 # MAGIC import json
 # MAGIC from boto3.session import Session
 # MAGIC 
+# MAGIC dbutils.fs.cp(landing_zone, s3_landing_zone, True)
 # MAGIC # Store the default configuration for all AWS service client sessions
 # MAGIC session = Session(region_name = "us-east-1")
 # MAGIC # Create a reference to the low-level Textract service client
