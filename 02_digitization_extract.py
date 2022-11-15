@@ -330,6 +330,7 @@ display(grouped_payloads_df)
 # MAGIC import json
 # MAGIC from boto3.session import Session
 # MAGIC 
+# MAGIC # Copy the files to S3 - this step can be omitted if the original landing zone is already on S3
 # MAGIC dbutils.fs.cp(landing_zone, s3_landing_zone, True)
 # MAGIC # Store the default configuration for all AWS service client sessions
 # MAGIC session = Session(region_name = "us-east-1")

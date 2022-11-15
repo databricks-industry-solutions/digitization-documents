@@ -27,6 +27,7 @@ s3_landing_zone = 's3://{}{}'.format(s3_bucket, landing_zone)
 
 # COMMAND ----------
 
+# Set mlflow experiment explicitly to make sure the code runs in both interactive execution and job execution
 import mlflow
 username = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
 mlflow.set_experiment('/Users/{}/document_digitization'.format(username))

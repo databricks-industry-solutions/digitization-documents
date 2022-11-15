@@ -143,10 +143,6 @@ for i, organization in enumerate(organizations):
 
 # COMMAND ----------
 
-landing_zone_fs
-
-# COMMAND ----------
-
 binary_df = spark.read.format('binaryFile').load(landing_zone_fs)
 display(binary_df)
 
