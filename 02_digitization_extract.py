@@ -86,7 +86,7 @@ ngram_df['distance'] = [np.min(y) for y in ys]
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Let's find the most descriptive documents for each identified cluster. As expected, we could find pages of highly unstructured text as well a tabular information. In this example, we will consider `cluster_1` to be made of highly structured information that we may want to delegate to a post processing layer such as AWS textract. `cluster_2`, however, contains plain text content that was already extracted through Tika with little or no benefits (and high costs) for a post processing layer.  
+# MAGIC Let's find the most descriptive documents for each identified cluster. As expected, we could find pages of highly unstructured text as well a tabular information. In this example, we will consider `cluster_1` to be made of highly structured information that we may want to delegate to a post-processing layer such as AWS Textract. `cluster_2`, however, contains plain text content that was already extracted through Tika with little or no benefits (and high costs) for a post processing layer.  
 
 # COMMAND ----------
 
@@ -107,7 +107,7 @@ for cid in range(k):
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Once again, this apparent simple approach to mask based profiling seems to yield powerful insights, successfully separating 3 different structures of documents. The next step will be to move towards a supervised learning approach and automatically recognize documents as Text vs Table as new information unfold (as new files are dropped to e.g. S3)
+# MAGIC Once again, this apparent simple approach to mask based profiling seems to yield powerful insights, successfully separating 3 different structures of documents. The next step will be to move towards a supervised learning approach and automatically recognize documents as Text vs Table as new information unfold (as new files are dropped to cloud storage such as S3)
 
 # COMMAND ----------
 
@@ -304,7 +304,7 @@ display(table_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Since we stored each page individually with original document uniquely identified, we can leverage that information to optimize calls to our post processing logic - AWS textract here. 
+# MAGIC Since we stored each page individually with original document uniquely identified, we can leverage that information to optimize calls to our post processing logic. 
 
 # COMMAND ----------
 
@@ -321,45 +321,4 @@ display(grouped_payloads_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC We report this code for demonstration purpose of how to integrate with AWS textract. The output will be streamed back to S3 where it can be stored alongside the original documents. 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ```
-# MAGIC import json
-# MAGIC from boto3.session import Session
-# MAGIC 
-# MAGIC # Store the default configuration for all AWS service client sessions
-# MAGIC session = Session(region_name = "us-east-1")
-# MAGIC # Create a reference to the low-level Textract service client
-# MAGIC textract = session.client("textract")
-# MAGIC     
-# MAGIC def send_to_textract(file):
-# MAGIC 
-# MAGIC     # Submit a request to start analysis of the sample document page
-# MAGIC     response = textract.start_document_analysis(
-# MAGIC         DocumentLocation = {
-# MAGIC             "S3Object": {
-# MAGIC                 "Bucket": bucket,
-# MAGIC                 "Name": file
-# MAGIC             }
-# MAGIC         },
-# MAGIC         FeatureTypes = [
-# MAGIC             "TABLES",
-# MAGIC             "FORMS",
-# MAGIC         ],
-# MAGIC         OutputConfig = {
-# MAGIC             "S3Bucket": bucket,
-# MAGIC             "S3Prefix": output_file
-# MAGIC         }
-# MAGIC     )
-# MAGIC 
-# MAGIC     # Inspect the response object
-# MAGIC     print(json.dumps(response, indent = 2))  
-# MAGIC ```
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC By only delegating < 5% of our digitized documents to AWS textract, we were in a position to better control operation costs and data throughput, results being asychronously stored back to S3 as JSON records (out of scope). On the other hand, we demonstrated how 95% of information could have been digitalized out of the box with no need for complex processing engine or expensive solutions. As mentioned in the introduction, although we used an example of PDF documents here, Tika is a powerful toolkit that may soon become your companion library in your digitalization of financial documents journey.
+# MAGIC By only delegating < 5% of our digitized documents to post-processing tools such as AWS Textract, Azure Cognitive Services for OCR or GCP's Cloud Vision API, we are in a position to better control operation costs and data throughput, results being asychronously stored back to cloud storage as JSON records (out of scope). On the other hand, we demonstrated how 95% of information could have been digitalized out of the box with no need for complex processing engine or expensive solutions. As mentioned in the introduction, although we used an example of PDF documents here, Tika is a powerful toolkit that may soon become your companion library in your digitalization of financial documents journey.
