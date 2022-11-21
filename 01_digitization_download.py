@@ -125,7 +125,7 @@ for i, organization in enumerate(organizations):
             # split PDF into individual pages
             pages = split_pages(content)
 
-            # write each page individually to s3
+            # write each page individually to storage
             for j, page_content in enumerate(pages):
                 with open('{}/{}.pdf'.format(dir, j + 1), 'wb') as f:
                     f.write(page_content)

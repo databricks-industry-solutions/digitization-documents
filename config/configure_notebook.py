@@ -18,20 +18,21 @@ warnings.filterwarnings("ignore")
 
 # COMMAND ----------
 
-sector = 'i22' # Brewing companies
-landing_zone = '/tmp/fsi/datasets/digitization/csr/files'
-model_name = 'table_classification'
-k = 3
-landing_zone_fs = '{}/**/pages'.format(landing_zone)
-s3_bucket = 'db-industry-gtm'
-s3_landing_zone = 's3://{}{}'.format(s3_bucket, landing_zone)
-
-# COMMAND ----------
-
 # Set mlflow experiment explicitly to make sure the code runs in both interactive execution and job execution
 import mlflow
 username = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
 mlflow.set_experiment('/Users/{}/document_digitization'.format(username))
+model_name = 'table_classification'
+
+# COMMAND ----------
+
+# Set sector to include brewing companies
+sector = 'i22' 
+
+# Here we use a `/tmp/...` path in DBFS to minimize dependency. We recommend using a `/mnt/...` path or one that directly connects to your cloud storage for production usage. To learn more about mount points, please review [this document](https://docs.databricks.com/dbfs/mounts.html).  If you would like to use a mount point or a different path, please update the variable below with the appropriate path:
+landing_zone = '/tmp/fsi/datasets/digitization/csr/files' 
+k = 3
+landing_zone_fs = '{}/**/pages'.format(landing_zone)
 
 # COMMAND ----------
 
