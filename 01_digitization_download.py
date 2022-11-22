@@ -1,5 +1,10 @@
 # Databricks notebook source
 # MAGIC %md
+# MAGIC You may find this notebook at https://github.com/databricks-industry-solutions/digitization-documents.
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC # Download reports
 # MAGIC For the purpose of this exercise, we will be loading some publicly available dataset containing text, images and tables. Available as PDF documents online, corporate responsiblity reports (CSR) are perfect examples of unstructured documents containing valuable insights. Compliance officers and market analysts would manually review these ESG disclosures, copy / paste relevant tables onto spreadsheets and gather as much information as possible from the text included across all different pages of different formats. This process could be automated using Apache Tika, Tesseract OCR (and additionally [AWS Textract](https://aws.amazon.com/textract/) or [John Snow Labs](https://nlp.johnsnowlabs.com/2022/09/06/finclf_augmented_esg_en.html) libraries). We will be loading all required libraries in the companion notebook (make sure to provision both scala and native libraries on your databricks cluster)
 
