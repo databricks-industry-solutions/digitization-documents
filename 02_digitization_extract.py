@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Tika text extraction
-# MAGIC Using [TikaInputFormat](https://github.com/databrickslabs/tika-ocr) library and tesseract binaries installed on each executor as an init script (optional), we can read any unstructured text as-is, extracting content type, text and metadata. Although this demo only focuses on PDF documents, Tika [supports](https://tika.apache.org/1.10/formats.html) literally any single MIME type known to men, from email, pictures, xls, html, powerpoints, scanned images, etc. 
+# MAGIC Using [TikaInputFormat](https://github.com/databrickslabs/tika-ocr) library and tesseract binaries installed on each executor as an init script (optional), we can read any unstructured text as-is, extracting content type, text and metadata. Although this demo only focuses on PDF documents, Tika [supports](https://tika.apache.org/1.10/formats.html) literally any single MIME type, from email, pictures, xls, html, powerpoints, scanned images, etc. 
 
 # COMMAND ----------
 

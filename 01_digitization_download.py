@@ -57,8 +57,8 @@ def get_organization_details(organization):
 
 # COMMAND ----------
 
-from PyPDF2 import PdfFileReader
-from PyPDF2 import PdfFileWriter
+from PyPDF2 import PdfReader
+from PyPDF2 import PdfWriter
 from io import BytesIO
 
 
@@ -67,8 +67,8 @@ def convert_page_pdf(page):
     Convert a given page object into its own PDF
     :param pageObject page: the extracted page object
     """
-    writer = PdfFileWriter()
-    writer.addPage(page)
+    writer = PdfWriter()
+    writer.add_page(page)
     tmp = BytesIO()
     writer.write(tmp)
     return tmp.getvalue()
@@ -81,7 +81,7 @@ def split_pages(content):
     :param binary content: the original PDF document as binary
     """
     pages = []
-    reader = PdfFileReader(BytesIO(content))
+    reader = PdfReader(BytesIO(content))
     number_of_pages = len(reader.pages)
     for page_number in range(0, number_of_pages):
         page = reader.pages[page_number] # retrieve specific page
@@ -94,7 +94,6 @@ def split_pages(content):
 
 import uuid
 import os
-import boto3
 
 # reinitiate the landing zone for the download
 dbutils.fs.rm(landing_zone, True)
